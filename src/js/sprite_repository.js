@@ -6,12 +6,47 @@ class Tile {
     this.tileWidth = tileWidth;
     this.tileHeight = tileHeight;
   }
+
+  renderAt(context, x, y) {
+    context.drawImage(
+      this.sprite,
+      this.startX,
+      this.startY,
+      this.tileWidth,
+      this.tileHeight,
+      x,
+      y,
+      this.tileWidth,
+      this.tileHeight
+    );
+  }
 }
 
 class Sprite {
   constructor() {
     this.loaded = false;
     this.image = this.createImageObject();
+  }
+
+  asTiles(startX, startY, tileWidth, tileHeight) {
+    let tiles = [];
+    let curX = startX;
+    let curY = startY;
+
+    /*
+    img  Specifies the image, canvas, or video element to use
+    sx  Optional. The x coordinate where to start clipping
+    sy  Optional. The y coordinate where to start clipping
+    swidth  Optional. The width of the clipped image
+    sheight Optional. The height of the clipped image
+    */
+    for(; curY < (startY + this.image.height); curY += tileHeight) {
+      for(; curX < (startX + this.image.width); curX += tileWidth) {
+        tiles.push( new Tile(this.image, curX, curY, tileWidth, tileHeight) );
+      }
+    }
+
+    return tiles;
   }
 
   createImageObject() {
@@ -49,27 +84,5 @@ class SpriteRepository {
       path = path.slice(1);
 
     return ( path.split('.')[0].split('/').pop() );
-  }
-
-  asTiles(spriteKey, startX, startY, tileWidth, tileHeight, regionWidth, regionHeight) {
-    let tiles = [];
-    let curX = startX;
-    let curY = startY;
-    let sprite = this.sprites[spriteKey];
-
-    /*
-    img  Specifies the image, canvas, or video element to use
-    sx  Optional. The x coordinate where to start clipping
-    sy  Optional. The y coordinate where to start clipping
-    swidth  Optional. The width of the clipped image
-    sheight Optional. The height of the clipped image
-    */
-    for(; curY < (startY + regionHeight); curY += tileHeight) {
-      for(; curX < (startX + regionWidth); curX += tileWidth) {
-        tiles.push( new Tile(sprite, curX, curY, tileWidth, tileHeight) );
-      }
-    }
-
-    return tiles;
   }
 }
