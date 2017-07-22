@@ -232,38 +232,67 @@ class Player {
 
     this.x = x;
     this.y = y;
+    this.moveX = 0;
+    this.moveY = 0;
 
-    this.directionState = DirectionState.RIGHT;
-    this.animation = this.rightAnim;
-    this.animation.playLoop(125);
+    this.right();
   }
 
   left() {
-    this.animation.stop();
+    if (this.animation) {
+      this.animation.stop();
+    }
+
     this.directionState = DirectionState.LEFT;
     this.animation = this.leftAnim;
     this.animation.playLoop(125);
+
+    this.moveX = -10;
+    this.moveY = 0;
   }
 
   right() {
-    this.animation.stop();
+    if (this.animation) {
+      this.animation.stop();
+    }
+
     this.directionState = DirectionState.RIGHT;
     this.animation = this.rightAnim;
     this.animation.playLoop(125);
+
+    this.moveX = 10;
+    this.moveY = 0;
   }
 
   up() {
-    this.animation.stop();
+    if (this.animation) {
+      this.animation.stop();
+    }
+
     this.directionState = DirectionState.UP;
     this.animation = this.upAnim;
     this.animation.playLoop(125);
+
+    this.moveX = 0;
+    this.moveY = -10;
   }
 
   down() {
-    this.animation.stop();
+    if (this.animation) {
+      this.animation.stop();
+    }
+
     this.directionState = DirectionState.DOWN;
     this.animation = this.downAnim;
     this.animation.playLoop(125);
+
+    this.moveX = 0;
+    this.moveY = 10;
+  }
+
+  update() {
+   this.x += this.moveX;
+   this.y += this.moveY;
   }
 
   render(context) {
@@ -347,7 +376,9 @@ setInterval(() => {
   renderBackground();
 
   grid.render(ctx);
+
   player.render(ctx);
+  player.update();
 
   if (keys['up']) {
     player.up();
