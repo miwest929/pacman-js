@@ -346,16 +346,14 @@ document.onkeydown = processKeyDownEvent;
 
 let processKeyUpEvent = (e) => {
   e = e || window.event;
-  e.preventDefault();
-
    // up arrow
-  if (e.keyCode == '38') { keys['up'] = false; }
+  if (e.keyCode == '38') { e.preventDefault(); keys['up'] = false; }
    // down arrow
-  else if (e.keyCode == '40') { keys['down'] = false; }
+  else if (e.keyCode == '40') { e.preventDefault(); keys['down'] = false; }
   // left arrow
-  else if (e.keyCode == '37') { keys['left'] = false; }
+  else if (e.keyCode == '37') { e.preventDefault(); keys['left'] = false; }
   // right arrow
-  else if (e.keyCode == '39') { keys['right'] = false; }
+  else if (e.keyCode == '39') { e.preventDefault(); keys['right'] = false; }
 };
 document.onkeyup = processKeyUpEvent;
 
@@ -364,20 +362,8 @@ let renderBackground = () => {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 };
 
-let prevTime = performance.now();
 
-setInterval(() => {
-  /*let currentTime = performance.now();
-  let fps = 1000 / (currentTime - prevTime);
-  prevTime = currentTime;
-
-  console.log(fps);
-*/
-  renderBackground();
-
-  grid.render(ctx);
-
-  player.render(ctx);
+let update = () => {
   player.update();
 
   if (keys['up']) {
@@ -392,5 +378,26 @@ setInterval(() => {
   else if (keys['right']) {
     player.right();
   }
-}, 100);
+}
 
+let render = () => {
+  renderBackground();
+  grid.render(ctx);
+  player.render(ctx);
+}
+
+let prevTime = performance.now();
+let main = () => {
+  let currentTime = performance.now();
+  let fps = 1000 / (currentTime - prevTime);
+  prevTime = currentTime;
+
+  console.log(fps);
+
+  update();
+  render();
+
+  window.requestAnimationFrame(main);
+}
+
+main();
