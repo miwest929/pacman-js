@@ -126,7 +126,7 @@ class Tile {
     this.tileHeight = tileHeight;
   }
 
-  renderAt(context, x, y) {
+  renderAt(context, x, y, renderedWidth = 32, renderedHeight = 32) {
     context.drawImage(
       this.sprite,
       this.startX,
@@ -135,8 +135,8 @@ class Tile {
       this.tileHeight,
       x,
       y,
-      32,//this.tileWidth,
-      32//this.tileHeight
+      renderedWidth,//this.tileWidth,
+      renderedHeight//this.tileHeight
     );
   }
 }
@@ -400,11 +400,14 @@ class Animation {
 
 class Player {
   constructor(tiles, x, y) {
+    this.playerTileWidth = 25;
+    this.playerTileHeight = 25;
+
     let renderFn = (tiles, context, x, y) => {
-      tiles[0].renderAt(context, x, y);
-      tiles[1].renderAt(context, x + 32, y);
-      tiles[2].renderAt(context, x, y + 32);
-      tiles[3].renderAt(context, x + 32, y + 32);
+      tiles[0].renderAt(context, x, y, this.playerTileWidth, this.playerTileHeight);
+      tiles[1].renderAt(context, x + this.playerTileWidth, y, this.playerTileWidth, this.playerTileHeight);
+      tiles[2].renderAt(context, x, y + this.playerTileHeight, this.playerTileWidth, this.playerTileHeight);
+      tiles[3].renderAt(context, x + this.playerTileWidth, y + this.playerTileHeight, this.playerTileWidth, this.playerTileHeight);
     };
 
     let leftOpen = new Frame([tiles[192], tiles[193], tiles[224], tiles[225]], renderFn);
@@ -435,7 +438,10 @@ class Player {
   }
 
   boundingBox() {
-    return new BoundingBox(this.x, this.y, 64, 64);
+    let width = this.playerTileWidth * 2;
+    let height = this.playerTileHeight * 2;
+
+    return new BoundingBox(this.x, this.y, width, height);
   }
 
   left() {
