@@ -75,36 +75,29 @@ class GameManager {
     let yBottomOne = bbOne.y + bbOne.height;
     let yBottomTwo = bbTwo.y + bbTwo.height;
 
+    // a is left of b
     if (xRightOne < xLeftTwo) {
       return false;
     }
 
+    // a is right of b
     if (xLeftOne > xRightTwo) {
       return false;
     }
 
+    // a is above b
     if (yBottomOne < yTopTwo) {
       return false;
     }
 
+    // a is below b
     if (yTopOne > yBottomTwo) {
       return false;
     }
 
-    //if (a.max.x < b.min.x) return false; // a is left of b
-    //if (a.min.x > b.max.x) return false; // a is right of b
-    //if (a.max.y < b.min.y) return false; // a is above b
-    //if (a.min.y > b.max.y) return false; // a is below b
-
     return true; // boxes overlap
   }
 }
-
-/*let GameObject = {
-  render: (context) => {
-    throw "Error: 'render' is not implemented";
-  }
-}*/
 
 class BoundingBox {
   constructor(x, y, width, height) {
@@ -290,8 +283,22 @@ class Grid {
       if (tile !== "0") {
         let bb;
 
-        if (tile === "2") {
+        if (tile === "1") {
+          bb = new BoundingBox(
+            currX,
+            currY,
+            0.6875 * this.tileWidth,
+            0.6875 * this.tileHeight
+          );
+        } else if (tile === "2") {
           bb = new BoundingBox(currX, currY, this.tileWidth, 0.5 * this.tileHeight);
+        } else if (tile === "3") {
+          bb = new BoundingBox(
+            currX + 0.3125 * this.tileWidth,
+            currY,
+            0.6875 * this.tileWidth,
+            0.6875 * this.tileHeight
+          );
         } else if (tile === "4") {
           bb = new BoundingBox(currX, currY, 0.5 * this.tileWidth, this.tileHeight);
         } else if (tile === "5") {
@@ -308,12 +315,76 @@ class Grid {
             0.5 * this.tileWidth,
             0.5 * this.tileHeight
           );
+        } else if (tile === "7") {
+          bb = new BoundingBox(
+            currX,
+            currY + 0.5 * this.tileHeight,
+            0.5 * this.tileWidth,
+            0.5 * this.tileHeight
+          );
+        } else if (tile === "8") {
+          bb = new BoundingBox(
+            currX,
+            currY + 0.5 * this.tileHeight,
+            this.tileWidth,
+            0.5 * this.tileHeight
+          );
+        } else if (tile === "9") {
+          bb = new BoundingBox(
+            this.currX,
+            this.currY,
+            0.5 * this.tileWidth,
+            this.tileHeight
+          );
         } else if (tile === "10") {
           bb = new BoundingBox(
             this.currX + 0.5 * this.tileWidth,
             this.currY,
             0.5 * this.tileWidth,
             this.tileHeight
+          );
+        } else if (tile === "11") {
+          bb = new BoundingBox(
+            this.currX + 0.5 * this.tileWidth,
+            this.currY,
+            0.5 * this.tileWidth,
+            0.5 * this.tileHeight
+          );
+        } else if (tile === "12") {
+          bb = new BoundingBox(
+            currX,
+            currY,
+            this.tileWidth,
+            0.5 * this.tileHeight
+          );
+        } else if (tile === "13") {
+          bb = new BoundingBox(
+            this.currX,
+            this.currY,
+            0.5 * this.tileWidth,
+            0.5 * this.tileHeight
+          );
+        } else if (tile === "14") {
+          bb = new BoundingBox(
+            currX,
+            currY + 0.3125 * this.tileHeight,
+            0.6875 * this.tileWidth,
+            0.6875 * this.tileHeight
+          );
+        } else if (tile === "15") {
+          bb = new BoundingBox(
+            currX + 0.3125 * this.tileHeight,
+            currY + 0.3125 * this.tileHeight,
+            0.6875 * this.tileWidth,
+            0.6875 * this.tileHeight
+          );
+        } else if (tile === "16") {
+          //TODO: currX & currY is undefined for this tile. Must investigate
+          bb = new BoundingBox(
+            this.currX,
+            this.currY + 0.5 * this.tileHeight,
+            this.tileWidth,
+            0.5 * this.tileHeight
           );
         } else {
           bb = new BoundingBox(currX, currY, this.tileWidth, this.tileHeight);
