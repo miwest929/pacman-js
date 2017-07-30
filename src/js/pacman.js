@@ -483,9 +483,85 @@ class Ghost {
     this.renderedTileWidth = 25;
     this.renderedTileHeight = 25;
 
-    let walkingOne = new Frame([tiles[192], tiles[193], tiles[224], tiles[225]], renderFn);
-    let walkingTwo = new Frame([tiles[196], tiles[197], tiles[228], tiles[229]], renderFn);
+    let renderFn = (tiles, context, x, y) => {
+      tiles[0].renderAt(context, x, y, this.renderedTileWidth, this.renderedTileHeight);
+      tiles[1].renderAt(context, x + this.renderedTileWidth, y, this.renderedTileWidth, this.renderedTileHeight);
+      tiles[2].renderAt(context, x, y + this.renderedTileHeight, this.renderedTileWidth, this.renderedTileHeight);
+      tiles[3].renderAt(context, x + this.renderedTileWidth, y + this.renderedTileHeight, this.renderedTileWidth, this.renderedTileHeight);
+    };
+
+    this.x = x;
+    this.y = y;
+    this.speed = 3;
+    this.velocity = {x: 0, y: 0};
+    let walkingOne = new Frame([tiles[384], tiles[385], tiles[416], tiles[417]], renderFn);
+    let walkingTwo = new Frame([tiles[386], tiles[387], tiles[418], tiles[419]], renderFn);
     this.walkingAnim = new Animation([walkingOne, walkingTwo], true);
+    this.animation = this.walkingAnim;
+    this.animation.play(125);
+
+    this.directionState = DirectionState.STILL;
+    this.right();
+  }
+
+  up() {
+    if (this.directionState == DirectionState.UP) {
+      return;
+    }
+
+    this.directionState = DirectionState.UP;
+    this.velocity.x = 0;
+    this.velocity.y = -this.speed;
+  }
+
+  down() {
+    if (this.directionState == DirectionState.DOWN) {
+      return;
+    }
+
+    this.directionState = DirectionState.DOWN;
+    this.velocity.x = 0;
+    this.velocity.y = this.speed;
+  }
+
+  left() {
+    if (this.directionState == DirectionState.LEFT) {
+      return;
+    }
+
+    this.directionState = DirectionState.LEFT;
+    this.velocity.x = -this.speed;
+    this.velocity.y = 0;
+  }
+
+  right() {
+    if (this.directionState == DirectionState.RIGHT) {
+      return;
+    }
+
+    this.directionState = DirectionState.RIGHT;
+    this.velocity.x = this.speed;
+    this.velocity.y = 0;
+  }
+
+  update(gameManager) {
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
+
+    let randomChoice = 1 + Math.floor(Math.random() * 6);
+
+    if (randomChoice == 2) {
+      let randomDirection = Math.floor(Math.random() * 4);
+
+      if (randomDirection == 0) { this.up(); }
+      else if (randomDirection == 1) { this.down(); }
+      else if (randomDirection == 2) { this.left(); }
+      else if (randomDirection == 3) { this.right(); }
+    }
+  }
+
+  render(context) {
+    this.animation.render(context, this.x, this.y);
   }
 }
 
@@ -630,10 +706,12 @@ let grid = new Grid(gridTiles, 0, 0);
 let generalSprites = spritesRepo.fetch("sprites-alpha").asTiles(1, 1, 47, 47, 1);
 
 let player = new Player(generalSprites, 50, 23);
+let redGhost = new Ghost(generalSprites, 100, 100);
 
 let gameManager = new GameManager(ctx);
 gameManager.register(grid, "grid");
 gameManager.register(player, "player");
+gameManager.register(redGhost, "redghost");
 
 let keys = {}
 let processKeyDownEvent = (e) => {
@@ -672,6 +750,8 @@ let renderBackground = () => {
 let update = () => {
   player.update(gameManager);
   player.handleKeyInput(keys);
+
+  redGhost.update(gameManager);
 }
 
 let render = () => {
