@@ -331,22 +331,22 @@ class Grid {
           );
         } else if (tile === "9") {
           bb = new BoundingBox(
-            this.currX,
-            this.currY,
+            currX,
+            currY,
             0.5 * this.tileWidth,
             this.tileHeight
           );
         } else if (tile === "10") {
           bb = new BoundingBox(
-            this.currX + 0.5 * this.tileWidth,
-            this.currY,
+            currX + 0.5 * this.tileWidth,
+            currY,
             0.5 * this.tileWidth,
             this.tileHeight
           );
         } else if (tile === "11") {
           bb = new BoundingBox(
-            this.currX + 0.5 * this.tileWidth,
-            this.currY,
+            currX + 0.5 * this.tileWidth,
+            currY,
             0.5 * this.tileWidth,
             0.5 * this.tileHeight
           );
@@ -359,8 +359,8 @@ class Grid {
           );
         } else if (tile === "13") {
           bb = new BoundingBox(
-            this.currX,
-            this.currY,
+            currX,
+            currY,
             0.5 * this.tileWidth,
             0.5 * this.tileHeight
           );
@@ -379,10 +379,9 @@ class Grid {
             0.6875 * this.tileHeight
           );
         } else if (tile === "16") {
-          //TODO: currX & currY is undefined for this tile. Must investigate
           bb = new BoundingBox(
-            this.currX,
-            this.currY + 0.5 * this.tileHeight,
+            currX,
+            currY + 0.5 * this.tileHeight,
             this.tileWidth,
             0.5 * this.tileHeight
           );
@@ -627,7 +626,7 @@ let grid = new Grid(gridTiles, 0, 0);
 
 let generalSprites = spritesRepo.fetch("sprites-alpha").asTiles(1, 1, 47, 47, 1);
 
-let player = new Player(generalSprites, 50, 20);
+let player = new Player(generalSprites, 50, 23);
 
 let gameManager = new GameManager(ctx);
 gameManager.register(grid, "grid");
