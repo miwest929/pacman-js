@@ -16,7 +16,8 @@ class GameManager {
     }
   }
 
-  checkForCollision(gameObjectOneKey, gameObjectTwoKey) {
+  // 'velocity' argument is for gameObjectOne.
+  checkForCollision(gameObjectOneKey, gameObjectTwoKey, velocity) {
     let gameObjectOne = this.objects[gameObjectOneKey];
     let gameObjectTwo = this.objects[gameObjectTwoKey];
 
@@ -31,6 +32,9 @@ class GameManager {
       console.log("[checkForCollision] Warning: bbOne must be an instance of BoundingBox.");
       return;
     }
+
+    // Take current velocity into account when checking for collisions.
+    bbOne.offsetBy(velocity);
 
     let bbTwo = gameObjectTwo.boundingBox(); // can be an array of BoundingBox
 
@@ -50,12 +54,11 @@ class GameManager {
       }
 
       if (this.checkBoundingBoxCollision(bbOne, bbTwo)) {
-        console.log(bbTwo);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(bbTwo.x, bbTwo.y, bbTwo.width, bbTwo.height);
+        //ctx.fillStyle = 'green';
+        //ctx.fillRect(bbTwo.x, bbTwo.y, bbTwo.width, bbTwo.height);
 
-        ctx.fillStyle = 'purple';
-        ctx.fillRect(bbOne.x, bbOne.y, bbOne.width, bbOne.height);
+        //ctx.fillStyle = 'purple';
+        //ctx.fillRect(bbOne.x, bbOne.y, bbOne.width, bbOne.height);
 
         return true;
       }
@@ -105,6 +108,13 @@ class BoundingBox {
     this.y = y;
     this.width = width;
     this.height = height;
+  }
+
+  offsetBy(velocity) {
+    this.x += velocity.x;
+    this.y += velocity.y;
+
+    return this;
   }
 }
 
@@ -468,6 +478,17 @@ class Animation {
   }
 }
 
+class Ghost {
+  constructor(tiles, x, y) {
+    this.renderedTileWidth = 25;
+    this.renderedTileHeight = 25;
+
+    let walkingOne = new Frame([tiles[192], tiles[193], tiles[224], tiles[225]], renderFn);
+    let walkingTwo = new Frame([tiles[196], tiles[197], tiles[228], tiles[229]], renderFn);
+    this.walkingAnim = new Animation([walkingOne, walkingTwo], true);
+  }
+}
+
 class Player {
   constructor(tiles, x, y) {
     this.playerTileWidth = 25;
@@ -499,9 +520,8 @@ class Player {
     this.x = x;
     this.y = y;
 
-    this.moveUnitIncrement = 2;
-    this.moveX = 0;
-    this.moveY = 0;
+    this.speed = 3;
+    this.velocity = {x: 0, y: 0};
 
     this.directionState = DirectionState.STILL;
     this.animation = this.rightAnim;
@@ -514,89 +534,72 @@ class Player {
     return new BoundingBox(this.x, this.y, width, height);
   }
 
-  left() {
-    if (this.directionState === DirectionState.LEFT) {
-      return;
+  handleKeyInput(keys) {
+    if (keys['up'] && this.directionState !== DirectionState.UP) {
+      this.up();
     }
+    else if (keys['down'] && this.directionState !== DirectionState.DOWN) {
+      this.down();
+    }
+    else if (keys['left'] && this.directionState !== DirectionState.LEFT) {
+      this.left();
+    }
+    else if (keys['right'] && this.directionState !== DirectionState.RIGHT) {
+      this.right();
+    }
+  }
 
+  changePlayerAnimation(newAnimation) {
     if (this.animation) {
       this.animation.stop();
     }
 
-    this.directionState = DirectionState.LEFT;
-    this.animation = this.leftAnim;
+    this.animation = newAnimation;
     this.animation.play(125);
+  }
 
-    this.moveX = -this.moveUnitIncrement;
-    this.moveY = 0;
+  left() {
+    this.changePlayerAnimation(this.leftAnim);
+
+    this.directionState = DirectionState.LEFT;
+    this.velocity.x = -this.speed;
+    this.velocity.y = 0;
   }
 
   right() {
-    if (this.directionState === DirectionState.RIGHT) {
-      return;
-    }
-
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.changePlayerAnimation(this.rightAnim);
 
     this.directionState = DirectionState.RIGHT;
-    this.animation = this.rightAnim;
-    this.animation.play(125);
-
-    this.moveX = this.moveUnitIncrement;
-    this.moveY = 0;
+    this.velocity.x = this.speed;
+    this.velocity.y = 0;
   }
 
   up() {
-    if (this.directionState === DirectionState.UP) {
-      return;
-    }
-
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.changePlayerAnimation(this.upAnim);
 
     this.directionState = DirectionState.UP;
-    this.animation = this.upAnim;
-    this.animation.play(125);
-
-    this.moveX = 0;
-    this.moveY = -this.moveUnitIncrement;
+    this.velocity.x = 0;
+    this.velocity.y = -this.speed;
   }
 
   down() {
-    if (this.directionState === DirectionState.DOWN) {
-      return;
-    }
-
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.changePlayerAnimation(this.downAnim);
 
     this.directionState = DirectionState.DOWN;
-    this.animation = this.downAnim;
-    this.animation.play(125);
-
-    this.moveX = 0;
-    this.moveY = this.moveUnitIncrement;
+    this.velocity.x= 0;
+    this.velocity.y = this.speed;
   }
 
   update(gameManager) {
-    if (gameManager.checkForCollision("player", "grid")) {
+    if (gameManager.checkForCollision("player", "grid", this.velocity)) {
       console.log("COLLISION DETECTED BETWEEN PLAYR AND GRID");
+    } else {
+      this.x += this.velocity.x;
+      this.y += this.velocity.y;
     }
-
-    this.x += this.moveX;
-    this.y += this.moveY;
   }
 
   render(context) {
-    // render Player boundingBox
-    //let playerBb = player.boundingBox();
-    //ctx.fillStyle = 'green';
-    //ctx.fillRect(playerBb.x, playerBb.y, playerBb.width, playerBb.height);
-
     this.animation.render(context, this.x, this.y);
   }
 }
@@ -668,19 +671,7 @@ let renderBackground = () => {
 
 let update = () => {
   player.update(gameManager);
-
-  if (keys['up']) {
-    player.up();
-  }
-  else if (keys['down']) {
-    player.down();
-  }
-  else if (keys['left']) {
-    player.left();
-  }
-  else if (keys['right']) {
-    player.right();
-  }
+  player.handleKeyInput(keys);
 }
 
 let render = () => {
